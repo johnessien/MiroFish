@@ -67,7 +67,7 @@ class GraphBuilderService:
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or Config.ZEP_API_KEY
         if not self.api_key:
-            raise ValueError("ZEP_API_KEY 未配置")
+            raise ValueError("ZEP_API_KEY is not configured")
         
         self.client = get_zep_client(self.api_key)
         self.task_manager = TaskManager()
@@ -127,7 +127,7 @@ class GraphBuilderService:
         chunk_size: int,
         chunk_overlap: int,
         batch_size: int,
-        locale: str = 'zh'
+        locale: str = 'en'
     ):
         """图谱构建工作线程"""
         set_locale(locale)

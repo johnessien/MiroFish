@@ -910,7 +910,7 @@ const pollPrepareStatus = async () => {
       }
     }
   } catch (err) {
-    console.warn('轮询状态失败:', err)
+    console.warn('Failed to poll status:', err)
   }
 }
 
@@ -954,7 +954,7 @@ const fetchProfilesRealtime = async () => {
       }
     }
   } catch (err) {
-    console.warn('获取 Profiles 失败:', err)
+    console.warn('Failed to fetch profiles:', err)
   }
 }
 
@@ -1027,7 +1027,7 @@ const fetchConfigRealtime = async () => {
       }
     }
   } catch (err) {
-    console.warn('获取 Config 失败:', err)
+    console.warn('Failed to fetch config:', err)
   }
 }
 

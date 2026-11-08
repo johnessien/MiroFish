@@ -45,149 +45,149 @@ def _to_upper_snake_case(name: str) -> str:
 
 
 # 本体生成的系统提示词
-ONTOLOGY_SYSTEM_PROMPT = """你是一个专业的知识图谱本体设计专家。你的任务是分析给定的文本内容和模拟需求，设计适合**社交媒体舆论模拟**的实体类型和关系类型。
+ONTOLOGY_SYSTEM_PROMPT = """You are an expert in knowledge graph ontology design. Your task is to analyze the given text and simulation requirement and design entity types and relationship types suited to a **social media public opinion simulation**.
 
-**重要：你必须输出有效的JSON格式数据，不要输出任何其他内容。**
+**Important: you must output valid JSON only. Do not output anything else.**
 
-## 核心任务背景
+## Background
 
-我们正在构建一个**社交媒体舆论模拟系统**。在这个系统中：
-- 每个实体都是一个可以在社交媒体上发声、互动、传播信息的"账号"或"主体"
-- 实体之间会相互影响、转发、评论、回应
-- 我们需要模拟舆论事件中各方的反应和信息传播路径
+We are building a **social media public opinion simulation system**. In this system:
+- Every entity is an "account" or "actor" that can speak, interact and spread information on social media
+- Entities influence, repost, comment on and respond to each other
+- We need to simulate how each party reacts and how information spreads during a public opinion event
 
-因此，**实体必须是现实中真实存在的、可以在社媒上发声和互动的主体**：
+Therefore, **entities must be real-world actors that can speak and interact on social media**:
 
-**可以是**：
-- 具体的个人（公众人物、当事人、意见领袖、专家学者、普通人）
-- 公司、企业（包括其官方账号）
-- 组织机构（大学、协会、NGO、工会等）
-- 政府部门、监管机构
-- 媒体机构（报纸、电视台、自媒体、网站）
-- 社交媒体平台本身
-- 特定群体代表（如校友会、粉丝团、维权群体等）
+**They can be**:
+- Specific individuals (public figures, people directly involved, opinion leaders, experts and scholars, ordinary people)
+- Companies and businesses (including their official accounts)
+- Organizations (universities, associations, NGOs, unions, etc.)
+- Government departments and regulators
+- Media organizations (newspapers, TV stations, independent media, websites)
+- Social media platforms themselves
+- Representatives of specific groups (e.g. alumni associations, fan clubs, advocacy groups)
 
-**不可以是**：
-- 抽象概念（如"舆论"、"情绪"、"趋势"）
-- 主题/话题（如"学术诚信"、"教育改革"）
-- 观点/态度（如"支持方"、"反对方"）
+**They cannot be**:
+- Abstract concepts (e.g. "public opinion", "emotion", "trend")
+- Themes/topics (e.g. "academic integrity", "education reform")
+- Views/attitudes (e.g. "supporters", "opponents")
 
-## 输出格式
+## Output Format
 
-请输出JSON格式，包含以下结构：
+Output JSON with the following structure:
 
 ```json
 {
     "entity_types": [
         {
-            "name": "实体类型名称（英文，PascalCase）",
-            "description": "简短描述（英文，不超过100字符）",
+            "name": "Entity type name (English, PascalCase)",
+            "description": "Short description (English, max 100 characters)",
             "attributes": [
                 {
-                    "name": "属性名（英文，snake_case）",
+                    "name": "Attribute name (English, snake_case)",
                     "type": "text",
-                    "description": "属性描述"
+                    "description": "Attribute description"
                 }
             ],
-            "examples": ["示例实体1", "示例实体2"]
+            "examples": ["Example entity 1", "Example entity 2"]
         }
     ],
     "edge_types": [
         {
-            "name": "关系类型名称（英文，UPPER_SNAKE_CASE）",
-            "description": "简短描述（英文，不超过100字符）",
+            "name": "Relationship type name (English, UPPER_SNAKE_CASE)",
+            "description": "Short description (English, max 100 characters)",
             "source_targets": [
-                {"source": "源实体类型", "target": "目标实体类型"}
+                {"source": "Source entity type", "target": "Target entity type"}
             ],
             "attributes": []
         }
     ],
-    "analysis_summary": "对文本内容的简要分析说明"
+    "analysis_summary": "Brief analysis of the text content"
 }
 ```
 
-## 设计指南（极其重要！）
+## Design Guidelines (Extremely Important!)
 
-### 1. 实体类型设计 - 必须严格遵守
+### 1. Entity Type Design - Must Be Followed Strictly
 
-**数量要求：必须正好10个实体类型**
+**Count: exactly 10 entity types**
 
-**层次结构要求（必须同时包含具体类型和兜底类型）**：
+**Hierarchy (must include both specific types and fallback types)**:
 
-你的10个实体类型必须包含以下层次：
+Your 10 entity types must include the following levels:
 
-A. **兜底类型（必须包含，放在列表最后2个）**：
-   - `Person`: 任何自然人个体的兜底类型。当一个人不属于其他更具体的人物类型时，归入此类。
-   - `Organization`: 任何组织机构的兜底类型。当一个组织不属于其他更具体的组织类型时，归入此类。
+A. **Fallback types (required, as the last 2 in the list)**:
+   - `Person`: fallback type for any individual person. Use it when a person does not fit any more specific person type.
+   - `Organization`: fallback type for any organization. Use it when an organization does not fit any more specific organization type.
 
-B. **具体类型（8个，根据文本内容设计）**：
-   - 针对文本中出现的主要角色，设计更具体的类型
-   - 例如：如果文本涉及学术事件，可以有 `Student`, `Professor`, `University`
-   - 例如：如果文本涉及商业事件，可以有 `Company`, `CEO`, `Employee`
+B. **Specific types (8, designed from the text)**:
+   - Design more specific types for the main roles that appear in the text
+   - For example, if the text is about an academic event: `Student`, `Professor`, `University`
+   - For example, if the text is about a business event: `Company`, `CEO`, `Employee`
 
-**为什么需要兜底类型**：
-- 文本中会出现各种人物，如"中小学教师"、"路人甲"、"某位网友"
-- 如果没有专门的类型匹配，他们应该被归入 `Person`
-- 同理，小型组织、临时团体等应该归入 `Organization`
+**Why fallback types are needed**:
+- The text will mention all kinds of people, such as "a schoolteacher", "a passer-by" or "some internet user"
+- If no specific type matches them, they should be classified as `Person`
+- Likewise, small organizations and informal groups should be classified as `Organization`
 
-**具体类型的设计原则**：
-- 从文本中识别出高频出现或关键的角色类型
-- 每个具体类型应该有明确的边界，避免重叠
-- description 必须清晰说明这个类型和兜底类型的区别
+**Principles for specific types**:
+- Identify frequently occurring or key role types in the text
+- Each specific type should have clear boundaries and avoid overlap
+- The description must clearly explain how this type differs from the fallback type
 
-### 2. 关系类型设计
+### 2. Relationship Type Design
 
-- 数量：6-10个
-- 关系应该反映社媒互动中的真实联系
-- 确保关系的 source_targets 涵盖你定义的实体类型
+- Count: 6-10
+- Relationships should reflect real connections in social media interactions
+- Make sure the relationships' source_targets cover the entity types you defined
 
-### 3. 属性设计
+### 3. Attribute Design
 
-- 每个实体类型1-3个关键属性
-- **注意**：属性名不能使用 `name`、`uuid`、`group_id`、`graph_id`、`created_at`、`summary`（这些是系统保留字）
-- 推荐使用：`full_name`, `title`, `role`, `position`, `location`, `description` 等
+- 1-3 key attributes per entity type
+- **Note**: attribute names cannot be `name`, `uuid`, `group_id`, `graph_id`, `created_at` or `summary` (these are reserved by the system)
+- Recommended: `full_name`, `title`, `role`, `position`, `location`, `description`, etc.
 
-## 实体类型参考
+## Entity Type Reference
 
-**个人类（具体）**：
-- Student: 学生
-- Professor: 教授/学者
-- Journalist: 记者
-- Celebrity: 明星/网红
-- Executive: 高管
-- Official: 政府官员
-- Lawyer: 律师
-- Doctor: 医生
+**People (specific)**:
+- Student: student
+- Professor: professor/scholar
+- Journalist: journalist
+- Celebrity: celebrity/influencer
+- Executive: executive
+- Official: government official
+- Lawyer: lawyer
+- Doctor: doctor
 
-**个人类（兜底）**：
-- Person: 任何自然人（不属于上述具体类型时使用）
+**People (fallback)**:
+- Person: any individual (used when none of the specific types above apply)
 
-**组织类（具体）**：
-- University: 高校
-- Company: 公司企业
-- GovernmentAgency: 政府机构
-- MediaOutlet: 媒体机构
-- Hospital: 医院
-- School: 中小学
-- NGO: 非政府组织
+**Organizations (specific)**:
+- University: university
+- Company: company/business
+- GovernmentAgency: government agency
+- MediaOutlet: media organization
+- Hospital: hospital
+- School: primary/secondary school
+- NGO: non-governmental organization
 
-**组织类（兜底）**：
-- Organization: 任何组织机构（不属于上述具体类型时使用）
+**Organizations (fallback)**:
+- Organization: any organization (used when none of the specific types above apply)
 
-## 关系类型参考
+## Relationship Type Reference
 
-- WORKS_FOR: 工作于
-- STUDIES_AT: 就读于
-- AFFILIATED_WITH: 隶属于
-- REPRESENTS: 代表
-- REGULATES: 监管
-- REPORTS_ON: 报道
-- COMMENTS_ON: 评论
-- RESPONDS_TO: 回应
-- SUPPORTS: 支持
-- OPPOSES: 反对
-- COLLABORATES_WITH: 合作
-- COMPETES_WITH: 竞争
+- WORKS_FOR: works for
+- STUDIES_AT: studies at
+- AFFILIATED_WITH: affiliated with
+- REPRESENTS: represents
+- REGULATES: regulates
+- REPORTS_ON: reports on
+- COMMENTS_ON: comments on
+- RESPONDS_TO: responds to
+- SUPPORTS: supports
+- OPPOSES: opposes
+- COLLABORATES_WITH: collaborates with
+- COMPETES_WITH: competes with
 """
 
 
@@ -264,31 +264,31 @@ class OntologyGenerator:
         
         combined_text = self._build_document_context(document_texts)
         
-        message = f"""## 模拟需求
+        message = f"""## Simulation Requirement
 
 {simulation_requirement}
 
-## 文档内容
+## Document Content
 
 {combined_text}
 """
         
         if additional_context:
             message += f"""
-## 额外说明
+## Additional Notes
 
 {additional_context}
 """
         
         message += """
-请根据以上内容，设计适合社会舆论模拟的实体类型和关系类型。
+Based on the content above, design entity types and relationship types suited to a public opinion simulation.
 
-**必须遵守的规则**：
-1. 必须正好输出10个实体类型
-2. 最后2个必须是兜底类型：Person（个人兜底）和 Organization（组织兜底）
-3. 前8个是根据文本内容设计的具体类型
-4. 所有实体类型必须是现实中可以发声的主体，不能是抽象概念
-5. 属性名不能使用 name、uuid、group_id、graph_id 等保留字，用 full_name、org_name 等替代
+**Rules that must be followed**:
+1. Output exactly 10 entity types
+2. The last 2 must be the fallback types: Person (individual fallback) and Organization (organization fallback)
+3. The first 8 are specific types designed from the text
+4. All entity types must be real-world actors that can speak, not abstract concepts
+5. Attribute names cannot use reserved words such as name, uuid, group_id or graph_id; use full_name, org_name, etc. instead
 """
         
         return message
@@ -325,7 +325,7 @@ class OntologyGenerator:
             )
 
         if len(context) > self.MAX_TEXT_LENGTH_FOR_LLM:
-            marker = "\n\n...(分块上下文已压缩到本体分析长度限制内)..."
+            marker = "\n\n...(chunk context compressed to fit the ontology analysis length limit)..."
             context = context[:self.MAX_TEXT_LENGTH_FOR_LLM - len(marker)] + marker
 
         return context
@@ -389,12 +389,12 @@ class OntologyGenerator:
 
         lines = [
             (
-                f"【长文本自动分块摘要】原文共{original_length}字，"
-                f"已分为{total_chunks}个文本块用于全局覆盖分析。"
+                f"[Automatic chunk summary of long text] The original text has {original_length} characters "
+                f"and was split into {total_chunks} chunks for full-coverage analysis."
             ),
             (
-                f"以下展示其中{len(selected_chunks)}个代表性文本块的摘录，"
-                "覆盖开头、中段和结尾；请基于这些跨全文线索设计本体，不要只依赖第一段内容。"
+                f"Below are excerpts from {len(selected_chunks)} representative chunks, "
+                "covering the beginning, middle and end; design the ontology from these clues across the whole text, not just the first part."
             ),
         ]
 
@@ -403,8 +403,8 @@ class OntologyGenerator:
             lines.append(
                 "\n".join([
                     (
-                        f"--- 文档 {chunk['document_index']} / "
-                        f"分块 {chunk['chunk_index']}/{chunk['total_document_chunks']} ---"
+                        f"--- Document {chunk['document_index']} / "
+                        f"Chunk {chunk['chunk_index']}/{chunk['total_document_chunks']} ---"
                     ),
                     excerpt,
                 ])
@@ -420,7 +420,7 @@ class OntologyGenerator:
         if len(text) <= char_limit:
             return text
 
-        marker = "\n...(本分块中间内容省略)...\n"
+        marker = "\n...(middle of this chunk omitted)...\n"
         if char_limit <= len(marker) + 20:
             return text[:char_limit]
 
@@ -636,15 +636,15 @@ class OntologyGenerator:
         """
         code_lines = [
             '"""',
-            '自定义实体类型定义',
-            '由MiroFish自动生成，用于社会舆论模拟',
+            'Custom entity type definitions',
+            'Auto-generated by MiroFish for social public opinion simulation',
             '"""',
             '',
             'from pydantic import Field',
             'from zep_cloud.external_clients.ontology import EntityModel, EntityText, EdgeModel',
             '',
             '',
-            '# ============== 实体类型定义 ==============',
+            '# ============== Entity Type Definitions ==============',
             '',
         ]
         
@@ -671,7 +671,7 @@ class OntologyGenerator:
             code_lines.append('')
             code_lines.append('')
         
-        code_lines.append('# ============== 关系类型定义 ==============')
+        code_lines.append('# ============== Relationship Type Definitions ==============')
         code_lines.append('')
         
         # 生成关系类型
@@ -700,7 +700,7 @@ class OntologyGenerator:
             code_lines.append('')
         
         # 生成类型字典
-        code_lines.append('# ============== 类型配置 ==============')
+        code_lines.append('# ============== Type Configuration ==============')
         code_lines.append('')
         code_lines.append('ENTITY_TYPES = {')
         for entity in ontology.get("entity_types", []):
